@@ -23,7 +23,7 @@
 
 <body>
 
-<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2022</h1>
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2023</h1>
 <h1 align="middle">Project 1: Rasterizer</h1>
 <h2 align="middle">Wentao Zhang, CS184-Project1</h2>
 
@@ -32,65 +32,221 @@
 <div>
 
 <h2 align="middle">Overview</h2>
-<p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+<p>This project helps me become familiar with the rasterization operation and have a better understanding the content and knowledge of triangle-rasterization, antializing, transformation through matrix, barycentric and mipmap</p>
 
 <h2 align="middle">Section I: Rasterization</h2>
 
 <h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
 
 <p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+<p><b>1.How to rasterize triangle?</b></p>
+<p>According to the method told in class, we can effectively judging whether or not a point is inside the bond of a triangle after some linear calculation. By plugging the coordinates into the implicit explanation of the line between 2 points of the triangle, we can easily know the comparative position of the sampled point to that line.After considering both the clockwise and anti-clockwise case, we can find all points inside and make correct sample.</p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/triangle_eg.png" align="middle" width="400px"/>
+		  <figcaption align="middle">Class slides showing how to detect whether a point is inside.</figcaption>
+		</td>
+		<td>
+		  <img src="images/ras_tri_code.png" align="middle" width="400px"/>
+		  <figcaption align="middle">Code to check whether that point is inside <br> Including both clockwise and anti-clockwise.</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
 
+<p><b>2.My algorithm is exactly checks each sample within the bounding box of the triangle. At first dertermine the bound and then checking every pixel inside.</b></p>
+<br>
+<p><b>3.A screenshot of basic/test4.svg with default settings</b></p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/interesting_tri.png" align="middle" width="400px"/>
+		  <figcaption align="middle">Maybe this is the 'interesting' part.</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+<br><br>
+
+<h3 align="middle">Part 2: Antialiasing triangles</h3>
+<p><b>1.Why is supersampling useful? What modifications did you make to the rasterization pipeline in the process?</b></p>
+<p>Supersampling is useful because there exists some high-frequency part inside the picture. When we use some low-frequency sampling, which might cause the aliasing happens, there will be jaggies and the picture seems a little bit weird and rigid. By supersampling, we first increase the sample rate so that we can better understanding the feature of the picture, then we use weighted-average to map it back on the normal size, which makes the sampling more natural.</p>
+<br>
+<p>The modification I made is that increasing the size of sample_buffer first and then directly do the super sampling. After that iterating in the buffer again, we get the color of a sample from the arounding sample_rate's pixel, then we can squeeze it back to the original size. </p>
+<p><b>Question 2</b></p>
 <div align="middle">
   <table style="width=100%">
     <tr>
       <td>
-        <img src="images/image1.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
+        <img src="images/ss1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Sample rate 1</figcaption>
       </td>
       <td>
-        <img src="images/image2.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
+        <img src="images/ss4.png" align="middle" width="400px"/>
+        <figcaption align="middle">Sample rate 4</figcaption>
       </td>
     </tr>
     <br>
     <tr>
       <td>
-        <img src="images/image3.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
+        <img src="images/ss9.png" align="middle" width="400px"/>
+        <figcaption align="middle">Sample rate 9</figcaption>
       </td>
       <td>
-        <img src="images/image4.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
+        <img src="images/ss16.png" align="middle" width="400px"/>
+        <figcaption align="middle">Sample rate 16</figcaption>
       </td>
     </tr>
   </table>
 </div>
 
 
-<h3 align="middle">Part 2: Antialiasing triangles</h3>
-
-
-
 <h3 align="middle">Part 3: Transforms</h3>
 
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/robo.png" align="middle" width="400px"/>
+		  
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<p>I just first write the corresponding matrix for 3 different transformation functions 
+	and edit the file of the cube man, such as using an additional rotation and change the scaling rate, so that it can become a gun man with intelligent brain inside his big head. <br>BTW, he also have strong muscle!</p>
 
 
 <h2 align="middle">Section II: Sampling</h2>
 
 <h3 align="middle">Part 4: Barycentric coordinates</h3>
+<p><b>Barycentric coordinates explanation</b></p>
+<p>My own understanding to barycentric coordinates is that: It's a kind of method help us to smoothly fulfill the color of some unknown pixel between several known pixel. Accordinng to the function, it looks like a weighted average for one pixel, to make the whole picture seems great, the color should be more similar to the color of the pixel that really close to the unknown pixel; however, it should also get influenced and include the color of some other pixels that may not be so close, so it is naturally to give a lower weight for these pixels' color.</p>
 
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/bary-tri.png" align="middle" width="400px"/>
+		  <figcaption align="left">a single triangle with one red, one green, and one blue vertex,<br>
+			 which should produce a smoothly blended color triangle.</figcaption>
+		</td>
+		<td>
+		  <img src="images/bary-cir.png" align="middle" width="400px"/>
+		  <figcaption align="middle"> <br> This is my code, we can clearly see that at the center of <br>this picture the colors got messy so they become black</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
 
 <h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
+<p><b>1.What is pixel sampling? The difference between nearst and bilinear sampling method?</b></p>
+<p>Pixel sampling means that the process of determining the color of pixels on the screen. The color comes from multiple samples on the given image, including 2 general ways : nearst sampling and bilinear sampling.<bm>
+	When we know the coordinates of a pixel, if the sample rate is not high enough, we can not directly get the color from the sampling. Nearest sampling means that we simply give the value(color) of the nearest sample point to the unknown pixel. <bm>
+	However, bilinear sampling is more smooth. Instead of the rough approximation, bilinear sampling get 4 samples around the target point, then calculate the color for the target pixel linearly(according to the comparative position between the target pixel and these 4 adjacent samples).<bm>
+	It's easy to think that with the same sample rate(generally a low one), when there are some edges or some borders inside the image, such as a different object with different color suddenly appear in the image, nearest sampling can only give rough and unnatural transition while bilinear can have better performance in filtering. <bm>
+	One more thing that should be mention is that though bilinear make the whole picture more smooth, there is no free lunch, for every pixel bilinear sampling requires extra computation & calculation, which undoubtedly increase the processing time.
+</p>
+
+<p><b>2.The relative differnece. When there will be large difference?</b></p>
+<p>Just as my mention before, those edge places with significant color change will bring large difference and we can see the priority of the bilinear sampling method.<bm>
+BTW, low sample rate is also important. Because if the sample rate is high enough, which means that we can almost directly know the color of that target pixel from reading the samples. At that case, because there are already enough space used for high-rate sampling, there is no more need to filter the high-frequency part, so that both method will get similar results.</p>
+
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/interesting_tri.png" align="middle" width="400px"/>
+		  <figcaption align="middle">Maybe this is the 'interesting' part.</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+<br><br>
+
+<h3 align="middle">Part 2: Antialiasing triangles</h3>
+<p><b>1.Why is supersampling useful? What modifications did you make to the rasterization pipeline in the process?</b></p>
+<p>Supersampling is useful because there exists some high-frequency part inside the picture. When we use some low-frequency sampling, which might cause the aliasing happens, there will be jaggies and the picture seems a little bit weird and rigid. By supersampling, we first increase the sample rate so that we can better understanding the feature of the picture, then we use weighted-average to map it back on the normal size, which makes the sampling more natural.</p>
+<br>
+<p>The modification I made is that increasing the size of sample_buffer first and then directly do the super sampling. After that iterating in the buffer again, we get the color of a sample from the arounding sample_rate's pixel, then we can squeeze it back to the original size. </p>
+<p><b>Question 2</b></p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/n1.png" align="middle" width="400px"/>
+        <figcaption align="middle">nearest at sample rate = 1, we can see the aliasing</figcaption>
+      </td>
+      <td>
+        <img src="images/b1.png" align="middle" width="400px"/>
+        <figcaption align="middle">bilinear at sample rate = 1</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/n16.png" align="middle" width="400px"/>
+        <figcaption align="middle">nearest at sample rate = 16</figcaption>
+      </td>
+      <td>
+        <img src="images/b16.png" align="middle" width="400px"/>
+        <figcaption align="middle">bilinear at sample rate = 16</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
 
 
 <h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+<p><b>1.What is level sampling? What's the implementation?</b></p>
+<p>Level sampling is that we seperate and sample the image at different levels. The lower the level, the more clear will the image be.<bm>
+	Actually, I think it's like some kind of a big box, avergaging the color at different level and store all of these "averaged" images, when we need to use some kind of averaging, we can easily search for the correct level and directly get the averaged color.<bm>
+	These different kind of images store different features of the original image and can be used in the later operation.<bm>
+		<br>
+<p>In order to implement this, I add some code apart from the task5. First I judge the 3 nearest pixel according to the problem discription. Then, I have to translate the coordinates into the (u,v)pairs so that I can find the related, correct level of the sampling. (For convenience and clearness, I write a function called uv_trans so that I can shorter my code and calculate the correct barycentric differentials.)<br> 
+	After that, I translate the properties of these adjacent pixels into Vector2D then throw it into the tex.sample() function, now we can conveniently search for the needed colors!<bm>
+	BTW: I also edit my texture.cpp file so that I can use the get_level() function to find the correct searching level and use the sample() function to return the color so that we can complete the task.
+</p>
+<p><b>2.pixel sampling, level sampling, or the number of samples per pixel and their tradeoff?</b></p>
+<p>For pixel sampling, there are 2 methods. Nearest pixel sampling is fast, and do not require extra space for storing, but might perform bad when the sample rate is low and produce more aliasing. However, bilinear pixel sampling is slower because it increase the calculation, which results to more smooth image.<bm>
+	For level sampling, due to our algorithm, we only need to store no more than 4/3 * original space to store the whole picture and can be calculate and find more quickly than bilinear pixel sampling. The side effect is the extra storage.
+	For supersampling, which has undoubtedly advantage in antializing, it requires both extra space(to storing the enlarged buffer) and extra calculation(to sample extra points).
+	Overall, there is no free lunch and not a 'best' algorithm, we should conbine the task requirement and the hardware we have to choose the most suitable method.
+</p>
 
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/6a.png" align="middle" width="400px"/>
+		</td>
+		<td>
+		  <img src="images/6b.png" align="middle" width="400px"/>
+		</td>
+	  </tr>
+	  <br>
+	  <tr>
+		<td>
+		  <img src="images/6c.png" align="middle" width="400px"/>
+		</td>
+		<td>
+		  <img src="images/6d.png" align="middle" width="400px"/>
+		</td>
+	  </tr>
+	</table>
+</div>
 
-
+<p>You can view my page at<br> https://zhangwt2001.github.io/proj-webpage-template/</p>
+<!--
 <h2 align="middle">Section III: Art Competition</h2>
 <p>If you are not participating in the optional art competition, don't worry about this section!</p>
 
 <h3 align="middle">Part 7: Draw something interesting!</h3>
 
 </body>
-</html>
+</html> 
+
