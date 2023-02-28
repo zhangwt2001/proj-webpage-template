@@ -1,7 +1,287 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 2 here
-	</body>
-</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Rasterizer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2023</h1>
+<h1 align="middle">Project 2: Bazier curves & surface and halfedge structure</h1>
+<h2 align="middle">Wentao Zhang, CS184-Project2</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>This project mainly helps me get familiar with the bazier curve and surface, and have a better understanding of the de Casteljau algorithm, feeling how to smooth and construct a curve space step by step. And also let us learn more about the mesh structure and experience the advantage of using the half-edge structure when dealing with triangles.</p>
+
+<h2 align="middle">Section I: Bezier Curves and Surfaces</h2>
+
+<h3 align="middle">Part 1: Bezier Curves with 1D de Casteljau Subdivision</h3>
+
+<p><b>1.Briefly explain de Casteljau's algorithm and how you implemented it in order to evaluate Bezier curves.</b></p>
+<p>De Casteljau's algorithm is a method for evaluating Bezier curves, which are a type of curve widely used in computer graphics and design. The algorithm works by recursively dividing the curve into smaller and smaller segments until the desired level of precision is reached.
+<br>
+About my implementation: first I got the total number of pointns, then according to the parameter "t", so that i can find the corresponding propotion of new control points.<p>
+<p><b>2. The result running the code on a ".bzc" file with different settings</b></p>
+	<div align="middle">
+		<table style="width=100%">
+		  <tr>
+			<td>
+			  <img src="images/bc1.png" align="middle" width="400px"/>
+			  <figcaption align="middle">Level 1</figcaption>
+			</td>
+			<td>
+			  <img src="images/bc2.png" align="middle" width="400px"/>
+			  <figcaption align="middle">Level 2</figcaption>
+			</td>
+		  </tr>
+		  <br>
+		  <tr>
+			<td>
+			  <img src="images/bc3.png" align="middle" width="400px"/>
+			  <figcaption align="middle">Level 3</figcaption>
+			</td>
+			<td>
+			  <img src="images/bc4.png" align="middle" width="400px"/>
+			  <figcaption align="middle">Bazier curve</figcaption>
+			</td>
+		  </tr>
+		</table>
+	</div>
+	<div align="middle">
+		<table style="width=100%">
+		  <tr>
+			<td>
+			  <img src="images/bc5.png" align="middle" width="400px"/>
+			  <figcaption align="middle">change on point</figcaption>
+			</td>
+			<td>
+			  <img src="images/bc6.png" align="middle" width="400px"/>
+			  <figcaption align="middle">change the value of "t"</figcaption>
+			</td>
+		  </tr>
+		</table>
+	</div>
+	  
+
+<br>
+
+
+<h3 align="middle">Part 2: Bezier Surfaces with Separable 1D de Casteljau</h3>
+<p><b>1.Briefly explain how de Casteljau algorithm extends to Bezier surfaces and how you implemented it in order to evaluate Bezier surfaces.</b></p>
+<p> Just as the image shown in the slides below. From my perspective, the Bezier surfaces are like some kind of integration of Bezier cureves. In my code, I just use a loop to iterate through the whole surface by rows(or maybe columns are also ok), then do again the Bezier curve on all these control points got from the last operation. Then we can have our result. </p>
+
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/bs1.png" align="middle" width="400px"/>
+		</td>
+		<td>
+			<img src="images/bs2.png" align="middle" width="400px"/>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<p><b>2. The result running the code on a ".bez" file</b></p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/bs3.png" align="middle" width="400px"/>
+		  <figcaption align="middle">What a beautiful teapot!</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+
+<h2 align="middle">Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+
+<h3 align="middle">Part 3: Area-Weighted Vertex Normals</h3>
+<p><b>1.Briefly explain how you implemented the area-weighted vertex normals.</b></p>
+<p>By using the convenient member variable of HalfedgeIter I can solve this problem. First I just initialize for the final result. Then by simply iterating the halfedgeIter from the start (more specifically, just ceaselessly doing halfedge -> twin -> next I can get to know all halfedge around the starting point, so that I can also get to knwo all the faces around), then calculate the area(weight) of these faces through the multiplication cross then finally normalize them, we can get to know the final result.</p>
+
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/flat_shading.png" align="middle" width="400px"/>
+		  <figcaption align="middle">without vertex normals (Flat shading)</figcaption>
+		</td>
+		<td>
+		  <img src="images/Phong_shading.png" align="middle" width="400px"/>
+		  <figcaption align="middle">with vertex normals (Phong shading)</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<h3 align="middle">Part 4: Edge flip</h3>
+<p><b>1.Briefly explain how you implemented the edge flip operation and describe any interesting implementation / debugging tricks you have used.</b></p>
+<p>I just list out all of these lines and changes, then reset all of the might-related variables as the question suggests, then I did it. This is my analysis process.</p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/process.PNG" align="middle" width="400px"/>
+		  <figcaption align="middle">all related elements</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+<p>BTW:This might be useful(though we need to change a little due to the different declaration of the halfedge): http://15462.courses.cs.cmu.edu/fall2015content/misc/HalfedgeEdgeOpImplementationGuide.pdf</p>
+<p><b>2. Screenshots of the teapot before and after some edge flips.</b></p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/b_f.png" align="middle" width="400px"/>
+		  <figcaption align="middle">original image</figcaption>
+		</td>
+		<td>
+		  <img src="images/f.png" align="middle" width="400px"/>
+		  <figcaption align="middle">after flipped(the center)</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<h3 align="middle">Part 5: Edge Split</h3>
+<p><b>1.Briefly explain how you implemented the edge split operation and describe any interesting implementation / debugging tricks you have used.</b></p>
+<p>It's almost the same as the Edge flip, I still list all correspoding elements and reset the properties of them again.</p>
+
+<p><b>2.Show screenshots of a mesh before and after some edge splits.<br>
+Show screenshots of a mesh before and after a combination of both edge splits and edge flips.</b></p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/s1.png" align="middle" width="400px"/>
+		  <figcaption align="middle">with edge splits</figcaption>
+		</td>
+		<td>
+		  <img src="images/sb.png" align="middle" width="400px"/>
+		  <figcaption align="middle">combination of splits and flips</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+<br>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/extra.png" align="middle" width="400px"/>
+		  <figcaption align="middle">extra</figcaption>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<br><br>
+
+
+
+
+<h3 align="middle">Part 6:  Loop Subdivision for Mesh Upsampling</h3>
+<p><b>1.Briefly explain how you implemented the loop subdivision and describe any interesting implementation / debugging tricks you have used.</b></p>
+<p>Loop subdivision involves repeatedly dividing each polygon into smaller ones and adjusting the position of the vertices based on the positions of their neighboring vertices.
+		<br>
+<p>In order to implement this, I combine some code from the task4 and task5. First, Iterating all of the vertex in mesh and
+	setting the property "isNew" of all vertex to be False. At the same time, calculating the new position of every vertex
+	after the subdivision, and store that value into the "newPosition" of these vertices. Of course, the calculating algorithm 
+	is according to the class slides.
+	<br>
+<p>Then iterating all edges so that I can decide the position of new vertex that are going to get created. Then I built a
+	new edgelist so that I can clearly seperate the new list and the old one and make sure that the split operation will not 
+	brings some troubles.
+	<br>
+<p>Then I split all of the edges and set their properties including newPosition and isNew. After that, flipping all new edges
+	that connect the new vertices with the old vertices.
+	<br>
+<p>Finally, use the new position of all vertices to overwrite the old position, then we done!
+</p>
+<p><b>2.Take some notes, as well as some screenshots, of your observations on how meshes behave after loop subdivision. What happens to sharp corners and edges? Can you reduce this effect by pre-splitting some edges?</b></p>
+<p>The meshes become more and more "smooth" during the subdivision process. However, it's clear that the sharp corners are more stubborn, which means that they are still try to be that sharp even after several subdivision.</p>
+<p> And the answer is yes! We can see the result according to the images below:
+	<div align="middle">
+		<table style="width=100%">
+		  <tr>
+			<td>
+			  <img src="images/61.png" align="middle" width="400px"/>
+			  <figcaption align="middle">normal</figcaption>
+			</td>
+			<td>
+			  <img src="images/62.png" align="middle" width="400px"/>
+			  <figcaption align="middle">still try to be sharp(left bottom)</figcaption>
+			</td>
+		  </tr>
+		  <br>
+		  <tr>
+			<td>
+			  <img src="images/63.png" align="middle" width="400px"/>
+			  <figcaption align="middle">pre split</figcaption>
+			</td>
+			<td>
+			  <img src="images/64.png" align="middle" width="400px"/>
+			  <figcaption align="middle">much better!</figcaption>
+			</td>
+		  </tr>
+		</table>
+	</div>
+<p><b>3.Load "dae/cube.dae" Perform several iterations of loop subdivision on the cube. Notice that the cube becomes slightly asymmetric after repeated subdivisions. Can you pre-process the cube with edge flips and splits so that the cube subdivides symmetrically? Document these effects and explain why they occur. Also explain how your pre-processing helps alleviate the effects.</b></p>
+<p>Just as the question before, we only pre-split the corner edge, to make the whold structure symmetric. The reason is that the algorithm depends on the existed edges and vertice. The original image is not symmetric at first, so after several subdivision, it can still not be symmetric.</p>
+<div align="middle">
+	<table style="width=100%">
+	  <tr>
+		<td>
+		  <img src="images/s0.png" align="middle" width="400px"/>
+		</td>
+		<td>
+		  <img src="images/s_1.png" align="middle" width="400px"/>
+		</td>
+	  </tr>
+	  <br>
+	  <tr>
+		<td>
+		  <img src="images/s2.png" align="middle" width="400px"/>
+		</td>
+		<td>
+		  <img src="images/s3.png" align="middle" width="400px"/>
+		</td>
+	  </tr>
+	</table>
+</div>
+
+<p>You can view my page at<br> https://zhangwt2001.github.io/proj-webpage-template/</p>
+<!--
+<h2 align="middle">Section III: Art Competition</h2>
+<p>If you are not participating in the optional art competition, don't worry about this section!</p>
+
+<h3 align="middle">Part 7: Draw something interesting!</h3>
+
+</body>
+</html> 
+
