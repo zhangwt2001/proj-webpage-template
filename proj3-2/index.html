@@ -1,7 +1,177 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 3-2 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Wentao Zhang  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3-2: Additional Features to PathTracer</h1>
+    <h2 align="middle">Wentao Zhang</h2>
+    
+
+    <div class="padded">
+
+        
+        * NOTE: For this project, you will choose TWO out of the four given parts to complete. One of those parts must be Part 1 or Part 2. In other words, you can choose any combination of two parts except the pair (Part 3, Part 4).
+
+
+        <h3 align="middle">Part 1. Mirror and Glass Materials</h3>
+
+        <p><b>
+            Show a sequence of six images of scene `CBspheres.dae` rendered with `max_ray_depth` set to 0, 1, 2, 3, 4, 5, and 100. The other settings should be at least 64 samples per pixel and 4 samples per light. Make sure to include all screenshots.
+        </b></p>
+        <div align="middle">
+			<table style="width=100%">
+			  <tr>
+				<td>
+				  <img src="images/CBspheres_0.png" align="middle" width="400px"/>
+				  <figcaption align="middle">128 samples per pixel,depth == 0</figcaption>
+				</td>
+				<td>
+				  <img src="images/CBspheres_1.png" align="middle" width="400px"/>
+				  <figcaption align="middle">128 samples per pixel,depth == 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td>
+				  <img src="images/CBspheres_2.png" align="middle" width="400px"/>
+				  <figcaption align="middle">128 samples per pixel,depth == 2</figcaption>
+				</td>
+				<td>
+				  <img src="images/CBspheres_3.png" align="middle" width="400px"/>
+				  <figcaption align="middle">128 samples per pixel,depth == 3</figcaption>
+				</td>
+			  </tr>
+				<tr>
+				  <td>
+					<img src="images/CBspheres_4.png" align="middle" width="400px"/>
+					<figcaption align="middle">128 samples per pixel,depth == 4</figcaption>
+				  </td>
+				  <td>
+					<img src="images/CBspheres_5.png" align="middle" width="400px"/>
+					<figcaption align="middle">128 samples per pixel,depth == 5</figcaption>
+				  </td>
+				</tr>
+				<tr>
+					<td>
+					  <img src="images/CBspheres_100.png" align="middle" width="400px"/>
+					  <figcaption align="middle">128 samples per pixel,depth == 100</figcaption>
+					</td>
+				  </tr>
+			</table>
+		</div>
+        <br>
+        <p><b>
+            Point out the new multibounce effects that appear in each image. Explain how these bounce numbers relate to the particular effects that appear.
+        </b></p>
+        <p>
+            At depth 0, only direct light hits the camera, so we can only see the light directly comes from the light source.<br>
+			At depth 1, light that bounces directly off of the objects and hits the camera appears, 
+			but the spheres are pitch black. Although we should be able to see the reflected light source, the light is further away from the camera than the spheres and thus the spheres are only black.<br>
+			At depth 2, we are able to see more, but the right sphere is mostly black since most rays are refracted and yet to be seen, and the left sphere can be seen to appear glassy: light could be refracted once at this depth and is still inside the glass.<br>
+			At depth 3, we start to see refractions. light is able to bounce off of the scene, off of an object, and then finally off of the right sphere to make the right-most sphere appear glassy. But I have to mention that we can notice that the right sphere in the left sphere is still black, which is because the ray depth is not enough.<br>
+			At depth 4&5, they are almost the same, we start to see the light spot on the right wall. This focus effect is due to two refractions and two reflections inside the glass. i.e., light → glass refract → glass reflect → glass reflect → glass refract → object → camera. And appears lighter.
+		</p>
+        <br>
+
+
+        <h3 align="middle">Part 2. Microfacet Material</h3>
+        <p><b>
+            Show a screenshot sequence of 4 images of scene `CBdragon_microfacet_au.dae` rendered with alpha set to 0.005, 0.05, 0.25 and 0.5. The other settings should be at least 128 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Describe the differences between different images. Note that, to change the $\alpha$, just open the .dae file and search for `microfacet`.
+        </b></p>
+        <div align="middle">
+			<table style="width=100%">
+			  <tr>
+				<td>
+				  <img src="images/CBdragon_005.png" align="middle" width="400px"/>
+				  <figcaption align="middle">alpha = 0.005</figcaption>
+				</td>
+				<td>
+				  <img src="images/CBdragon_05.png" align="middle" width="400px"/>
+				  <figcaption align="middle">alpha = 0.05</figcaption>
+				</td>
+			  </tr>
+			  <br>
+			  <tr>
+				<td>
+				  <img src="images/CBdragon_25.png" align="middle" width="400px"/>
+				  <figcaption align="middle">alpha = 0.25</figcaption>
+				</td>
+				<td>
+				  <img src="images/CBdragon_5.png" align="middle" width="400px"/>
+				  <figcaption align="middle">alpha = 0.5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			alpha = 0.005, rather dark, with only a little ray to the directly illuminated parts.<br>
+			alpha = 0.05, add a lot more brightness to the directly illuminated parts.<br>
+			alpha = 0.25, much brighter now! Though some remain metalic, pretty amount of parts have been vivid.
+			alpha = 0.5, almost real, very bright and smooth.
+
+
+		</p>
+        <br>
+        <p><b>
+            Show two images of scene `CBbunny_microfacet_cu.dae` rendered using cosine hemisphere sampling (default) and your importance sampling. The sampling rate should be fixed at 64 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Briefly discuss their difference.
+        </b></p>
+        <div align="middle">
+			<table style="width=100%">
+			  <tr>
+				<td>
+				  <img src="images/CBbunny1.png" align="middle" width="400px"/>
+				  <figcaption align="middle">only cosine hemisphere sampling</figcaption>
+				</td>
+				<td>
+				  <img src="images/CBbunny2.png" align="middle" width="400px"/>
+				  <figcaption align="middle">importance sampling</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>Difference: The hemisphere sampled bunny is much noisier which is largely due to 
+			the fact that hemisphere sampling works poorly with the Beckmann function, and is accentuated 
+			by the fact that microfacet bsdf's require continuity to appear glossy. In contrast, the right picture,
+			with importance sampling, adjusted for microfacet bsdf's, is able to create this vivid 
+			effect.
+		</p>
+
+        <br>
+        <p><b>
+            Show at least one image with some other conductor material, replacing `eta` and `k`. Note that you should look up values for real data rather than modifying them arbitrarily. Tell us what kind of material your parameters correspond to. 
+        </b></p>
+        <p>
+            Silver (Ag) with η = (0.059193, 0.059881, 0.047366), k = (4.1283, 3.5892, 2.8132)
+        </p>
+		<div align="middle">
+			<table style="width=100%">
+			  <tr>
+				<td>
+				  <img src="images/CBdragon_sil.png" align="middle" width="400px"/>
+				  <figcaption align="middle">Silver dragon!</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+        <br>
+        
+    
+
+
+       
+		<p>You can view my page at<br> https://zhangwt2001.github.io/proj-webpage-template/</p>
+
+    </div>
+</body>
 </html>
